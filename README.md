@@ -200,3 +200,23 @@ Please do **not** open public issues for security reports. Email security@agora.
 ## License
 
 Released under the [MIT License](./LICENSE).
+
+   ---
+   
+   # Ruby — Adaptive AI Sales & Negotiation Agent
+   
+   ## Overview
+   
+   ## Problem Statement
+   
+   ## Architecture
+   
+   ## Tech Stack
+   
+   ## Setup / How to Run
+   
+   ## Team
+   
+   ## Demo
+   
+   ## Known Issues / Limitations
