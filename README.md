@@ -1,5 +1,7 @@
 # Agora Conversational AI Next.js Quickstart
 
+**This project is Meridian**, an AI sales agent built on Agora Conversational AI for EchoSphere 2026. See [`docs/SETUP.md`](docs/SETUP.md) for the full project writeup (problem statement, architecture, team). The instructions below are for running the Next.js scaffold this project is built on.
+
 [![Build](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs/actions/workflows/build-check.yml/badge.svg)](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs/actions/workflows/build-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org/)

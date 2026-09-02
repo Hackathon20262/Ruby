@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 type QuickstartConversationLayoutProps = {
   statusPanel: ReactNode;
   pipelineMetrics: ReactNode;
+  confidenceMeter: ReactNode;
   transcriptPanel: ReactNode;
   visualizer: ReactNode;
   controls: ReactNode;
@@ -16,6 +17,7 @@ type QuickstartConversationLayoutProps = {
 export function QuickstartConversationLayout({
   statusPanel,
   pipelineMetrics,
+  confidenceMeter,
   transcriptPanel,
   visualizer,
   controls,
@@ -56,9 +58,10 @@ export function QuickstartConversationLayout({
       </header>
 
       <div className="flex min-h-0 w-full flex-1 flex-col gap-4 px-4 pb-4 pt-4 md:px-6 lg:flex-row lg:gap-0">
-        <aside className="order-2 h-64 min-h-0 w-full shrink-0 lg:order-1 lg:h-full lg:w-[26rem]">
-          {transcriptPanel}
-        </aside>
+        <aside className="order-2 flex h-auto min-h-0 w-full shrink-0 flex-col gap-4 lg:order-1 lg:h-full lg:w-[26rem]">
+  {confidenceMeter}
+  <div className="min-h-0 flex-1">{transcriptPanel}</div>
+</aside>
 
         <main className="order-1 flex min-h-0 flex-1 flex-col lg:order-2 lg:border-l lg:border-border/80 lg:pl-6">
           <div className="flex min-h-0 flex-1 flex-col pb-2 pt-3 md:pb-6">

@@ -43,6 +43,7 @@ import {
   type QuickstartAgentMetric,
 } from './QuickstartPipelineMetrics';
 import { QuickstartTranscriptPanel } from './QuickstartTranscriptPanel';
+import ConfidenceMeter from './ConfidenceMeter';
 import type { ConversationComponentProps } from '@/types/conversation';
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
@@ -480,6 +481,7 @@ export default function ConversationComponent({
         />
       }
       pipelineMetrics={<QuickstartPipelineMetrics metrics={agentMetrics} />}
+      confidenceMeter={<ConfidenceMeter />}
       transcriptPanel={
         <QuickstartTranscriptPanel
           messageList={messageList}
