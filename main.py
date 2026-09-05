@@ -1,13 +1,60 @@
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from fastapi import FastAPI
 from pydantic import BaseModel
+import json
 
-load_dotenv()  # reads your .env file
+def check_pricing(plan: str):
+    """Get pricing details for a plan.
+
+    Args:
+        plan: The name of the plan (basic, pro, or enterprise)
+    """
+    with open("pricing.json") as f:
+        pricing = json.load(f)
+    plan = plan.lower()
+    if plan in pricing:
+        return pricing[plan]
+    return {"error": f"No plan named '{plan}' found"}
+
+def escalate_to_human(reason: str, summary: str):
+    """Escalate the conversation to a human when the AI can't help further.
+
+    Args:
+        reason: why this needs a human (e.g. 'angry customer', 'complex custom pricing')
+        summary: a short summary of the conversation so far, for the human to read
+    """
+    with open("leads.json") as f:
+        leads = json.load(f)
+    leads.append({"reason": reason, "summary": summary})
+    with open("leads.json", "w") as f:
+        json.dump(leads, f, indent=2)
+    return {"status": "escalated", "message": "A team member will follow up shortly."}
+
+def update_confidence(field: str):
+    """Mark a qualification field as confirmed during the conversation.
+
+    Args:
+        field: one of 'budget', 'team_size', 'timeline', 'authority'
+    """
+    if field in confidence_state:
+        confidence_state[field] = True
+        return {"status": "updated", "field": field}
+    return {"error": f"Unknown field '{field}'"}
+
+load_dotenv()
 print("KEY FOUND:", os.getenv("GEMINI_API_KEY"))
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"), transport="rest")
-model = genai.GenerativeModel("gemini-3.6-flash")
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+confidence_state = {
+    "budget": False,
+    "team_size": False,
+    "timeline": False,
+    "authority": False
+}
 
 app = FastAPI()
 
@@ -16,7 +63,11 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 def chat(request: ChatRequest):
-    response = model.generate_content(request.message)
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=request.message,
+        config=types.GenerateContentConfig(tools=[check_pricing, escalate_to_human, update_confidence]),
+    )
     return {"reply": response.text}
 
 class Message(BaseModel):
@@ -29,9 +80,25 @@ class OpenAIChatRequest(BaseModel):
 @app.post("/v1/chat/completions")
 def openai_chat(request: OpenAIChatRequest):
     last_user_message = request.messages[-1].content
-    response = model.generate_content(last_user_message)
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=last_user_message,
+        config=types.GenerateContentConfig(tools=[check_pricing, escalate_to_human, update_confidence]),
+    )
     return {
         "choices": [
             {"message": {"role": "assistant", "content": response.text}}
         ]
+    }
+
+@app.get("/score")
+def get_score():
+    filled = sum(confidence_state.values())
+    total = len(confidence_state)
+    return {
+        "budget": confidence_state["budget"],
+        "teamSize": confidence_state["team_size"],
+        "timeline": confidence_state["timeline"],
+        "authority": confidence_state["authority"],
+        "score": filled / total
     }
