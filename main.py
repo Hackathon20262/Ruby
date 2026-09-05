@@ -70,6 +70,17 @@ def chat(request: ChatRequest):
     )
     return {"reply": response.text}
 
+def build_gemini_history(messages: list["Message"]):
+    gemini_contents = []
+    for msg in messages:
+        if msg.role == "system":
+            continue
+        role = "model" if msg.role == "assistant" else "user"
+        gemini_contents.append(
+            types.Content(role=role, parts=[types.Part(text=msg.content)])
+        )
+    return gemini_contents
+
 class Message(BaseModel):
     role: str
     content: str
@@ -79,10 +90,10 @@ class OpenAIChatRequest(BaseModel):
 
 @app.post("/v1/chat/completions")
 def openai_chat(request: OpenAIChatRequest):
-    last_user_message = request.messages[-1].content
+    gemini_contents = build_gemini_history(request.messages)
     response = client.models.generate_content(
         model="gemini-3.6-flash",
-        contents=last_user_message,
+        contents=gemini_contents,
         config=types.GenerateContentConfig(tools=[check_pricing, escalate_to_human, update_confidence]),
     )
     return {
